@@ -1,28 +1,64 @@
 import express from "express";
-
-// This will help us connect to the database
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 import db from "../db/connection.js";
 
-// This help convert the id from string to ObjectId for the _id.
-import { ObjectId } from "mongodb";
-
-import multer from "multer";
-
-// router is an instance of the express router.
-// We use it to define our routes.
-// The router will be added as a middleware and will take control of requests starting with path /record.
 const router = express.Router();
+
+// Determine __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ensure the uploads directory exists
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Configure storage for multer
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-      cb(null, `${Date.now()}-${file.originalname}`);
-    }
-  });
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir); // Directory to save uploaded files
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`); // Unique filename
+  }
+});
+
 const upload = multer({ storage: storage });
+
+// Middleware to parse form-data
+router.use(express.urlencoded({ extended: true }));
+router.use(express.json());
+
+// Create a new ingredient
+router.post("/", upload.single("picture"), async (req, res) => {
+  console.log(req.body); // Debug: Check the parsed body
+  console.log(req.file); // Debug: Check the uploaded file
+  try {
+    const newIngredient = {
+      name: req.body.name,
+      picture: req.file ? `/uploads/${req.file.filename}` : null,
+      calories: req.body.calories,
+      protein: req.body.protein,
+      carbs: req.body.carbs,
+      fat: req.body.fat,
+    };
+    const collection = db.collection("ingredients");
+    const result = await collection.insertOne(newIngredient);
+    res.status(201).send(result);
+  } catch (err) {
+    console.error("Error adding ingredient:", err);
+    res.status(500).send("Error adding ingredient");
+  }
+});
+  
+
+// Middleware to parse form-data
+router.use(express.urlencoded({ extended: true }));
+router.use(express.json());
 
 // Get a list of all ingredients
 router.get("/", async (req, res) => {
@@ -57,33 +93,7 @@ router.get("/:id", async (req, res) => {
   }
 );
 
-router.post("/", upload.single("picture"), async (req, res) => {
-    console.log(req.body);
-    try {
-      // Create a new document with the provided details
-      
-      let newDocument = {
-        name: req.body.name,
-        picture: req.file ? `/uploads/${req.file.filename}` : null, // Handle optional picture upload
-        calories: req.body.calories,
-        protein: req.body.protein,
-        carbs: req.body.carbs,
-        fat: req.body.fat,
-      };
-  
-      // Insert the new document into the ingredients collection
-      let collection = await db.collection("ingredients");
-      let result = await collection.insertOne(newDocument);
-  
-      // Respond with the result of the insertion
-      res.status(201).send(result);
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Error adding ingredient");
-    }
-  }
-);
-  
+
 
 // Update an ingredient by id with optional picture upload
 router.patch("/:id", upload.single("picture"), async (req, res) => {

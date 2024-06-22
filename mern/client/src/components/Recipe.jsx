@@ -1,99 +1,78 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
-function onSubmitRecipe(){
-
-}
 export default function Recipe() {
-  // Search functionality
-  const [equal, setEqual] = useState(0);
+  // State for search functionality
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [myInventory, setMyInventory] = useState([]);
-  const [myArray, setMyArray] = useState(['Apple',
-      'Banana',
-      'Orange',
-      'Grapes',
-      'Pineapple',
-      'Strawberry',
-      'Blueberry',
-      'Mango',
-      'Peach',
-      'Watermelon',])
-  const handleChange = (e) => {
-    let value = e.target.value;
-    if(value === ""){
-        setSearchTerm(value);
-        setSearchResults([])
-    }
-    else{
-        setSearchTerm(value);
-        const results = myArray.filter(item =>
-          item.toLowerCase().includes(value.toLowerCase())
-        );
-        setSearchResults(results);
-    }
-  };
-  const handleClick = (item) => {
-      setMyArray(prevArray => prevArray.filter(i => i !== item));
-      setSearchResults([]);
-      setSearchTerm("");
-      setMyInventory(prevInventory => [...prevInventory, item]);
+  const [ingredientsList, setIngredientsList] = useState([]);
+  const [selectedIngredients, setSelectedIngredients] = useState([]);
+
+  // Fetch all ingredients for search
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      const response = await fetch('http://localhost:5050/ingredient/');
+      const data = await response.json();
+      setIngredientsList(data);
     };
-  // ------------
-  
-  const [ingredients, setIngredients] = useState([
-    { name: '', picture: '', calories: '', protein: '', carbs: '', fat: '' }
-  ]);
+    fetchIngredients();
+  }, []);
 
-  const addNewIngredients = () => {
-    setIngredients([...ingredients, { name: '', picture: '', calories: '', protein: '', carbs: '', fat: '' }]);
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    if (value === "") {
+      setSearchResults([]);
+    } else {
+      const results = ingredientsList.filter(item =>
+        item.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setSearchResults(results);
+    }
   };
 
-  const deleteNewIngredients = (index) => {
-    const updatedIngredients = [...ingredients];
+  const handleIngredientSelect = (ingredient) => {
+    setSelectedIngredients(prev => [...prev, { ...ingredient, amount: '' }]);
+    setSearchTerm('');
+    setSearchResults([]);
+  };
+
+  const handleIngredientAmountChange = (index, e) => {
+    const updatedIngredients = [...selectedIngredients];
+    updatedIngredients[index].amount = e.target.value;
+    setSelectedIngredients(updatedIngredients);
+  };
+
+  const handleRemoveIngredient = (index) => {
+    const updatedIngredients = [...selectedIngredients];
     updatedIngredients.splice(index, 1);
-    setIngredients(updatedIngredients);
+    setSelectedIngredients(updatedIngredients);
   };
 
-  const [recipe, setRecipe] = useState([{ name: '', picture: '', description: '', ingredients: '' }]);
+  // State for recipe
+  const [recipe, setRecipe] = useState({ name: '', picture: null, description: '' });
 
-  const deleteNewRecipe = (index) => {
-
+  const handleRecipeChange = (e) => {
+    const { name, value, files } = e.target;
+    setRecipe(prev => ({
+      ...prev,
+      [name]: files ? files[0] : value
+    }));
   };
 
-  const handleIngredientChange = (index, event) => {
-    const { name, value } = event.target;
-    const updatedIngredients = [...ingredients];
-    updatedIngredients[index][name] = value;
-    setIngredients(updatedIngredients);
-  };
-
-  const handleRecipeChange = (index, event) => {
-    const { name, value } = event.target;
-    const updatedRecipe = [...recipe];
-    updatedRecipe[index][name] = value;
-    setRecipe(updatedRecipe);
-  };
-
-const onSubmitIngredients = async (e) => {
+  const onSubmitRecipe = async (e) => {
     e.preventDefault();
-    console.log("Submitting ingredients");
-
-    // Create a FormData object to handle file uploads
     const formData = new FormData();
-
-    ingredients.forEach((ingredient) => {
-      formData.append('name', ingredient.name);
-      formData.append('picture', ingredient.picture);
-      formData.append('calories', ingredient.calories);
-      formData.append('protein', ingredient.protein);
-      formData.append('carbs', ingredient.carbs);
-      formData.append('fat', ingredient.fat);
-    });
+    formData.append('name', recipe.name);
+    formData.append('picture', recipe.picture);
+    formData.append('description', recipe.description);
+    formData.append('ingredients', JSON.stringify(selectedIngredients.map(ingredient => ({
+      ingredientId: ingredient._id,
+      amount: ingredient.amount
+    }))));
 
     try {
-      const response = await fetch('http://localhost:5050/ingredient/', {
+      const response = await fetch('http://localhost:5050/recipe/', {
         method: 'POST',
         body: formData,
       });
@@ -103,15 +82,14 @@ const onSubmitIngredients = async (e) => {
         console.log(result);
         // Handle successful response
       } else {
-        console.error("Error uploading the ingredients");
+        console.error("Error uploading the recipe");
         // Handle server errors
       }
     } catch (error) {
-      console.error("There was an error uploading the ingredients!", error);
+      console.error("There was an error uploading the recipe!", error);
       // Handle network errors
     }
   };
-
 
   return (
     <div id="wrapper" className="bg-[#2F3C7E] relative h-screen-vh text-[#FBEAEB] pt-3">
@@ -120,94 +98,7 @@ const onSubmitIngredients = async (e) => {
           Return
         </NavLink>
       </nav>
-      <h1 className="text-[2rem] text-center mb-[20px]">Create Ingredients</h1>
-      <div className="text-black flex items-center justify-center">
-        <form onSubmit={onSubmitIngredients}>
-          <table className="min-w-[90%] bg-white border border-gray-200">
-            <thead>
-              <tr>
-                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Name</th>
-                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Picture</th>
-                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Calories</th>
-                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Protein</th>
-                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Carbs</th>
-                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Fat</th>
-                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ingredients.map((row, index) => (
-                <tr key={index} className={index % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-50"}>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <input
-                      type="text"
-                      name="name"
-                      value={row.name}
-                      onChange={(event) => handleIngredientChange(index, event)}
-                      className="w-full"
-                    />
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <input
-                      type="file"
-                      name="picture"
-                      value={row.picture}
-                      onChange={(event) => handleIngredientChange(index, event)}
-                      className="w-full"
-                    />
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <input
-                      type="text"
-                      name="calories"
-                      value={row.calories}
-                      onChange={(event) => handleIngredientChange(index, event)}
-                      className="w-full"
-                    />
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <input
-                      type="text"
-                      name="protein"
-                      value={row.protein}
-                      onChange={(event) => handleIngredientChange(index, event)}
-                      className="w-full"
-                    />
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <input
-                      type="text"
-                      name="carbs"
-                      value={row.carbs}
-                      onChange={(event) => handleIngredientChange(index, event)}
-                      className="w-full"
-                    />
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <input
-                      type="text"
-                      name="fat"
-                      value={row.fat}
-                      onChange={(event) => handleIngredientChange(index, event)}
-                      className="w-full"
-                    />
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <button onClick={() => deleteNewIngredients(index)} className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-700">Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </form>
-      </div>
-      <div className="flex justify-center items-center text-[1.5rem]">
-        <button onClick={addNewIngredients} className="mt-4 bg-blue-500 w-[300px] text-white py-2 px-4 rounded hover:bg-blue-700">Add New Entry</button>
-      </div>
-      <div className="flex justify-center items-center text-[1.5rem]">
-        <button onClick={onSubmitIngredients} className="mt-4 bg-green-500 w-[300px] text-white py-2 px-4 rounded hover:bg-blue-700">Update</button>
-      </div>
-      <h1 className="text-[2rem] text-center mt-[20px] mb-[20px]">Create Recipe</h1>
+      <h1 className="text-[2rem] text-center mb-[20px]">Create Recipe</h1>
       <div className="text-black flex items-center justify-center">
         <form onSubmit={onSubmitRecipe}>
           <table className="min-w-[90%] bg-white border border-gray-200">
@@ -222,70 +113,74 @@ const onSubmitIngredients = async (e) => {
               </tr>
             </thead>
             <tbody>
-              {recipe.map((row, index) => (
-                <tr key={index} className={index % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-50"}>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <input
-                      type="text"
-                      name="name"
-                      value={row.name}
-                      onChange={(event) => handleRecipeChange(index, event)}
-                      className="w-full"
-                    />
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <input
-                      type="file"
-                      name="picture"
-                      value={row.picture}
-                      onChange={(event) => handleRecipeChange(index, event)}
-                      className="w-full"
-                    />
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <input
-                      type="text"
-                      name="description"
-                      value={row.description}
-                      onChange={(event) => handleRecipeChange(index, event)}
-                      className="w-full"
-                    />
-                  </td>
-                  <td className="relative w-[150px]">
-                    <input id={index} className="absolute top-1/2 transform -translate-y-1/2 focus:outline-none w-full" placeholder="Search Ingredients..." value={searchTerm} onInput={handleChange}/>
-                    <div className="absolute w-full top-[70px]">
-                    {searchResults.length > 0 && (
-                      <ul>
-                        <li onClick={() => handleClick(searchResults[0])} className="bg-white cursor-pointer hover:bg-blue-100">
-                          {searchResults[0]}
-                        </li>
-                      </ul>
-                    )}
+              <tr>
+                <td className="py-2 px-4 border-b border-gray-200">
+                  <input
+                    type="text"
+                    name="name"
+                    value={recipe.name}
+                    onChange={handleRecipeChange}
+                    className="w-full"
+                  />
+                </td>
+                <td className="py-2 px-4 border-b border-gray-200">
+                  <input
+                    type="file"
+                    name="picture"
+                    onChange={handleRecipeChange}
+                    className="w-full"
+                  />
+                </td>
+                <td className="py-2 px-4 border-b border-gray-200">
+                  <input
+                    type="text"
+                    name="description"
+                    value={recipe.description}
+                    onChange={handleRecipeChange}
+                    className="w-full"
+                  />
+                </td>
+                <td className="py-2 px-4 border-b border-gray-200">
+                  <input
+                    type="text"
+                    placeholder="Search Ingredients..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="w-full"
+                  />
+                  <ul>
+                    {searchResults.map((item, index) => (
+                      <li key={index} onClick={() => handleIngredientSelect(item)} className="cursor-pointer hover:bg-gray-200">
+                        {item.name}
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+                <td className="py-2 px-4 border-b border-gray-200">
+                  {selectedIngredients.map((ingredient, index) => (
+                    <div key={index} className="flex items-center justify-between mb-2">
+                      <span>{ingredient.name}</span>
+                      <input
+                        type="number"
+                        placeholder="Amount"
+                        value={ingredient.amount}
+                        onChange={(e) => handleIngredientAmountChange(index, e)}
+                        className="w-20"
+                      />
+                      <button type="button" onClick={() => handleRemoveIngredient(index)} className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700">
+                        Remove
+                      </button>
                     </div>
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <div className="w-full resize-none p-1 text-[1rem h-[100px] overflow-auto">
-                      <ul className="overflow-auto h-full hide-scrollbar">
-                        {myInventory.map((item, index) => (
-                          <li key={index}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <div onClick={() => {
-                      setMyInventory([]);
-                    }} className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-700 hover:cursor-pointer">
-                      Delete
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                  ))}
+                </td>
+                <td className="py-2 px-4 border-b border-gray-200">
+                  <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700">Save Recipe</button>
+                </td>
+              </tr>
             </tbody>
           </table>
         </form>
       </div>
-      <div className="flex justify-center items-center text-[1.5rem]"><button className="mt-4 bg-green-500 w-[300px] text-white py-2 px-4 rounded hover:bg-blue-700">Update</button></div>
     </div>
-  )
+  );
 }

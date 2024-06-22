@@ -11,6 +11,7 @@ import Home from "./components/Home";
 import "./index.css";
 import Inventory from "./components/Inventory";
 import Recipe from "./components/Recipe";
+import Ingredient from "./components/Ingredient";
 
 const router = createBrowserRouter([
   {
@@ -18,9 +19,14 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
+    path: "/create-ingredient",
+    element: <Ingredient />,
+  },
+  {
     path: "/create-recipe",
     element: <Recipe />,
   },
+
   {
     path: "/inventory",
     element: <Inventory />,
