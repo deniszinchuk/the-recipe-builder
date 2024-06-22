@@ -9,18 +9,23 @@ import Record from "./components/Record";
 import RecordList from "./components/RecordList";
 import Home from "./components/Home";
 import "./index.css";
+import Inventory from "./components/Inventory";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/home",
     element: <Home />,
   },
   {
-    path: "/backend",
+    path: "/inventory",
+    element: <Inventory />,
+  },
+  {
+    path: "/",
     element: <App />,
     children: [
       {
-        path: "/backend",
+        path: "/",
         element: <RecordList />,
       },
     ],
