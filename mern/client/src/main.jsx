@@ -7,15 +7,20 @@ import {
 import App from "./App";
 import Record from "./components/Record";
 import RecordList from "./components/RecordList";
+import Home from "./components/Home";
 import "./index.css";
 
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/backend",
     element: <App />,
     children: [
       {
-        path: "/",
+        path: "/backend",
         element: <RecordList />,
       },
     ],
