@@ -10,11 +10,16 @@ import RecordList from "./components/RecordList";
 import Home from "./components/Home";
 import "./index.css";
 import Inventory from "./components/Inventory";
+import Recipe from "./components/Recipe";
 
 const router = createBrowserRouter([
   {
     path: "/home",
     element: <Home />,
+  },
+  {
+    path: "/create-recipe",
+    element: <Recipe />,
   },
   {
     path: "/inventory",
