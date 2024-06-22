@@ -60,14 +60,8 @@ export default function Recipe() {
 
   const [recipe, setRecipe] = useState([{ name: '', picture: '', description: '', ingredients: '' }]);
 
-  const addNewRecipe = () => {
-    setRecipe([...recipe, { name: '', picture: '', description: '', ingredients: '' }]);
-  };
-
   const deleteNewRecipe = (index) => {
-    const updatedRecipe = [...recipe];
-    updatedRecipe.splice(index, 1);
-    setRecipe(updatedRecipe);
+
   };
 
   const handleIngredientChange = (index, event) => {
@@ -189,6 +183,7 @@ export default function Recipe() {
                 <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Description</th>
                 <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Ingredients</th>
                 <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Ingredients List</th>
+                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -240,6 +235,13 @@ export default function Recipe() {
                           <li key={index}>{item}</li>
                         ))}
                       </ul>
+                    </div>
+                  </td>
+                  <td className="py-2 px-4 border-b border-gray-200">
+                    <div onClick={() => {
+                      setMyInventory([]);
+                    }} className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-700 hover:cursor-pointer">
+                      Delete
                     </div>
                   </td>
                 </tr>
