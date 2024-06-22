@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 
 function onSubmitRecipe(){
-  
+
 }
 export default function Recipe() {
-  
   // Search functionality
+  const [equal, setEqual] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [myInventory, setMyInventory] = useState([]);
   const [myArray, setMyArray] = useState(['Apple',
       'Banana',
       'Orange',
@@ -19,24 +20,25 @@ export default function Recipe() {
       'Mango',
       'Peach',
       'Watermelon',])
-  const [selectedItem, setSelectedItem] = useState(null);
   const handleChange = (e) => {
-      if(e.target.value === ""){
-          setSearchTerm(e.target.value);
-          setSearchResults([])
-      }
-      else{
-          setSearchTerm(e.target.value);
-          const results = myArray.filter(item =>
-            item.toLowerCase().includes(e.target.value.toLowerCase())
-          );
-          setSearchResults(results);
-      }
+    let value = e.target.value;
+    if(value === ""){
+        setSearchTerm(value);
+        setSearchResults([])
+    }
+    else{
+        setSearchTerm(value);
+        const results = myArray.filter(item =>
+          item.toLowerCase().includes(value.toLowerCase())
+        );
+        setSearchResults(results);
+    }
   };
   const handleClick = (item) => {
       setMyArray(prevArray => prevArray.filter(i => i !== item));
       setSearchResults([]);
-      setSearchTerm('');
+      setSearchTerm("");
+      setMyInventory(prevInventory => [...prevInventory, item]);
     };
   // ------------
   
@@ -56,14 +58,8 @@ export default function Recipe() {
 
   const [recipe, setRecipe] = useState([{ name: '', picture: '', description: '', ingredients: '' }]);
 
-  const addNewRecipe = () => {
-    setRecipe([...recipe, { name: '', picture: '', description: '', ingredients: '' }]);
-  };
-
   const deleteNewRecipe = (index) => {
-    const updatedRecipe = [...recipe];
-    updatedRecipe.splice(index, 1);
-    setRecipe(updatedRecipe);
+
   };
 
   const handleIngredientChange = (index, event) => {
@@ -125,7 +121,7 @@ const onSubmitIngredients = async (e) => {
         </NavLink>
       </nav>
       <h1 className="text-[2rem] text-center mb-[20px]">Create Ingredients</h1>
-      <div className="overflow-x-auto text-black flex items-center justify-center">
+      <div className="text-black flex items-center justify-center">
         <form onSubmit={onSubmitIngredients}>
           <table className="min-w-[90%] bg-white border border-gray-200">
             <thead>
@@ -212,66 +208,84 @@ const onSubmitIngredients = async (e) => {
         <button onClick={onSubmitIngredients} className="mt-4 bg-green-500 w-[300px] text-white py-2 px-4 rounded hover:bg-blue-700">Update</button>
       </div>
       <h1 className="text-[2rem] text-center mt-[20px] mb-[20px]">Create Recipe</h1>
-        <div className="overflow-x-auto text-black flex items-center justify-center">
-          <form onSubmit={onSubmitRecipe}>
-            <table className="min-w-[90%] bg-white border border-gray-200">
-              <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Name</th>
-                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Picture</th>
-                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Description</th>
-                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Ingredients</th>
-                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Actions</th>
+      <div className="text-black flex items-center justify-center">
+        <form onSubmit={onSubmitRecipe}>
+          <table className="min-w-[90%] bg-white border border-gray-200">
+            <thead>
+              <tr>
+                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Name</th>
+                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Picture</th>
+                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Description</th>
+                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Ingredients</th>
+                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Ingredients List</th>
+                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recipe.map((row, index) => (
+                <tr key={index} className={index % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-50"}>
+                  <td className="py-2 px-4 border-b border-gray-200">
+                    <input
+                      type="text"
+                      name="name"
+                      value={row.name}
+                      onChange={(event) => handleRecipeChange(index, event)}
+                      className="w-full"
+                    />
+                  </td>
+                  <td className="py-2 px-4 border-b border-gray-200">
+                    <input
+                      type="file"
+                      name="picture"
+                      value={row.picture}
+                      onChange={(event) => handleRecipeChange(index, event)}
+                      className="w-full"
+                    />
+                  </td>
+                  <td className="py-2 px-4 border-b border-gray-200">
+                    <input
+                      type="text"
+                      name="description"
+                      value={row.description}
+                      onChange={(event) => handleRecipeChange(index, event)}
+                      className="w-full"
+                    />
+                  </td>
+                  <td className="relative w-[150px]">
+                    <input id={index} className="absolute top-1/2 transform -translate-y-1/2 focus:outline-none w-full" placeholder="Search Ingredients..." value={searchTerm} onInput={handleChange}/>
+                    <div className="absolute w-full top-[70px]">
+                    {searchResults.length > 0 && (
+                      <ul>
+                        <li onClick={() => handleClick(searchResults[0])} className="bg-white cursor-pointer hover:bg-blue-100">
+                          {searchResults[0]}
+                        </li>
+                      </ul>
+                    )}
+                    </div>
+                  </td>
+                  <td className="py-2 px-4 border-b border-gray-200">
+                    <div className="w-full resize-none p-1 text-[1rem h-[100px] overflow-auto">
+                      <ul className="overflow-auto h-full hide-scrollbar">
+                        {myInventory.map((item, index) => (
+                          <li key={index}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </td>
+                  <td className="py-2 px-4 border-b border-gray-200">
+                    <div onClick={() => {
+                      setMyInventory([]);
+                    }} className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-700 hover:cursor-pointer">
+                      Delete
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {recipe.map((row, index) => (
-                  <tr key={index} className={index % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-50"}>
-                    <td className="py-2 px-4 border-b border-gray-200">
-                      <input
-                        type="text"
-                        name="name"
-                        value={row.name}
-                        onChange={(event) => handleRecipeChange(index, event)}
-                        className="w-full"
-                      />
-                    </td>
-                    <td className="py-2 px-4 border-b border-gray-200">
-                      <input
-                        type="file"
-                        name="picture"
-                        value={row.picture}
-                        onChange={(event) => handleRecipeChange(index, event)}
-                        className="w-full"
-                      />
-                    </td>
-                    <td className="py-2 px-4 border-b border-gray-200">
-                      <input
-                        type="text"
-                        name="description"
-                        value={row.description}
-                        onChange={(event) => handleRecipeChange(index, event)}
-                        className="w-full"
-                      />
-                    </td>
-                    <td className="relative w-[300px]">
-                      <input className="absolute top-1/2 transform -translate-y-1/2 focus:outline-none w-full" placeholder="Search Ingredients..." value={searchTerm} onInput={handleChange}/>
-                      <div className="absolute w-full top-[36px]">
-                      </div>
-                    </td>
-                    <td className="py-2 px-4 border-b border-gray-200">
-                      <button onClick={() => deleteNewRecipe(index)} className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-700">Delete</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </form>
-        </div>
-        <div className="flex justify-center items-center text-[1.5rem]"><button onClick={addNewRecipe} className="mt-4 bg-blue-500 w-[300px] text-white py-2 px-4 rounded hover:bg-blue-700">Add New Entry</button></div>
-        <div className="flex justify-center items-center text-[1.5rem]"><button className="mt-4 bg-green-500 w-[300px] text-white py-2 px-4 rounded hover:bg-blue-700">Update</button></div>
-          
+              ))}
+            </tbody>
+          </table>
+        </form>
       </div>
-    )
-    
+      <div className="flex justify-center items-center text-[1.5rem]"><button className="mt-4 bg-green-500 w-[300px] text-white py-2 px-4 rounded hover:bg-blue-700">Update</button></div>
+    </div>
+  )
 }
