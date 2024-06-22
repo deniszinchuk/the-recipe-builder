@@ -1,61 +1,71 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
 export default function Inventory() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [myArray, setMyArray] = useState([
-    'Apple',
-    'Banana',
-    'Orange',
-    'Grapes',
-    'Pineapple',
-    'Strawberry',
-    'Blueberry',
-    'Mango',
-    'Peach',
-    'Watermelon',
-    'hui',
-    'hui2',
-    'hui3',
-    'hui4'
-  ]);
+  const [ingredients, setIngredients] = useState([]);
   const [myInventory, setMyInventory] = useState([]);
 
+  // Fetch ingredients from the backend
+  useEffect(() => {
+    async function fetchIngredients() {
+      try {
+        const response = await fetch('http://localhost:5050/ingredient/');
+        if (!response.ok) {
+          const message = `An error occurred: ${response.statusText}`;
+          console.error(message);
+          return;
+        }
+        const ingredients = await response.json();
+        setIngredients(ingredients);
+      } catch (error) {
+        console.error('Failed to fetch ingredients:', error);
+      }
+    }
+    fetchIngredients();
+  }, []);
+
+  // Handle search input change
   const handleChange = (e) => {
-    if (e.target.value === "") {
-      setSearchTerm(e.target.value);
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (value === "") {
       setSearchResults([]);
     } else {
-      setSearchTerm(e.target.value);
-      const results = myArray.filter(item =>
-        item.toLowerCase().includes(e.target.value.toLowerCase())
+      const results = ingredients.filter(item =>
+        item.name.toLowerCase().includes(value.toLowerCase())
       );
       setSearchResults(results);
     }
   };
 
+  // Handle item click from search results
   const handleClick = (item) => {
-    setMyArray(prevArray => prevArray.filter(i => i !== item));
-    setMyInventory(prevInventory => [...prevInventory, { name: item, count: 1 }]);
+    setIngredients(prevArray => prevArray.filter(i => i._id !== item._id));
+    setMyInventory(prevInventory => [...prevInventory, { ...item, count: 1 }]);
     setSearchResults([]);
     setSearchTerm('');
   };
 
+  // Handle removing item from inventory
   const handleRemove = (item) => {
-    setMyInventory(prevInventory => prevInventory.filter(i => i.name !== item.name));
-    setMyArray(prevArray => [...prevArray, item.name]);
+    setMyInventory(prevInventory => prevInventory.filter(i => i._id !== item._id));
+    setIngredients(prevArray => [...prevArray, item]);
   };
 
+  // Handle incrementing item count
   const handleIncrement = (item) => {
     setMyInventory(prevInventory =>
-      prevInventory.map(i => i.name === item.name ? { ...i, count: i.count + 1 } : i)
+      prevInventory.map(i => i._id === item._id ? { ...i, count: i.count + 1 } : i)
     );
   };
 
+  // Handle decrementing item count
   const handleDecrement = (item) => {
     setMyInventory(prevInventory =>
-      prevInventory.map(i => i.name === item.name ? { ...i, count: i.count > 1 ? i.count - 1 : 1 } : i)
+      prevInventory.map(i => i._id === item._id ? { ...i, count: i.count > 1 ? i.count - 1 : 1 } : i)
     );
   };
 
@@ -82,7 +92,7 @@ export default function Inventory() {
                 className="hover:bg-gray-300 cursor-pointer"
                 key={index}
               >
-                {item}
+                {item.name}
               </li>
             ))}
           </ul>
@@ -91,9 +101,9 @@ export default function Inventory() {
       <div className="h-[60%] mt-[20px] hide-scrollbar border rounded-[2rem] mr-[30px] ml-[30px] pl-[15px] pt-[15px] overflow-auto">
         <div className="flex gap-[1rem] w-full flex-wrap">
           {myInventory.map((item, index) => (
-            <div className="w-[150px] m-h-[150px] text-[1.25rem] bg-transparent rounded-[1rem] border pt-2">
+            <div className="w-[150px] m-h-[150px] text-[1.25rem] bg-transparent rounded-[1rem] border pt-2" key={item._id}>
               <div className="flex justify-center items-center">
-                <img className="h-[75px] w-[75px]" src="images/Smiley.png"></img>
+                <img className="h-[75px] w-[75px]" src={`http://localhost:5050${item.picture}`} alt={item.name}></img>
               </div>
               <div className="flex justify-center items-center flex-col">
                 <p>{item.name}</p>
@@ -111,6 +121,12 @@ export default function Inventory() {
                   onClick={() => handleDecrement(item)}
                 >
                   -
+                </button>
+                <button
+                  className="text-white w-10 p-1 rounded bg-red-500 hover:bg-red-700"
+                  onClick={() => handleRemove(item)}
+                >
+                  X
                 </button>
               </div>
             </div>
