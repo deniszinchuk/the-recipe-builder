@@ -7,10 +7,19 @@ const Record = (props) => (
       {props.record.name}
     </td>
     <td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
-      {props.record.position}
+      {props.record.picture}
     </td>
     <td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
-      {props.record.level}
+      {props.record.calories}
+    </td>
+    <td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+      {props.record.protein}
+    </td>
+    <td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+      {props.record.carbs}
+    </td>
+    <td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+      {props.record.fat}
     </td>
     <td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
       <div className="flex gap-2">
@@ -41,7 +50,7 @@ export default function RecordList() {
   // This method fetches the records from the database.
   useEffect(() => {
     async function getRecords() {
-      const response = await fetch(`http://localhost:5050/record/`);
+      const response = await fetch(`http://localhost:5050/ingredient/`);
       if (!response.ok) {
         const message = `An error occurred: ${response.statusText}`;
         console.error(message);
@@ -56,7 +65,7 @@ export default function RecordList() {
 
   // This method will delete a record
   async function deleteRecord(id) {
-    await fetch(`http://localhost:5050/record/${id}`, {
+    await fetch(`http://localhost:5050/ingredient/${id}`, {
       method: "DELETE",
     });
     const newRecords = records.filter((el) => el._id !== id);
