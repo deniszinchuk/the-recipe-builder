@@ -6,6 +6,7 @@ import db from "../db/connection.js";
 // This help convert the id from string to ObjectId for the _id.
 import { ObjectId } from "mongodb";
 
+import multer from "multer";  // Add this line to import multer
 // router is an instance of the express router.
 // We use it to define our routes.
 // The router will be added as a middleware and will take control of requests starting with path /record.

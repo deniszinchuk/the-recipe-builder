@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
       cb(null, `${Date.now()}-${file.originalname}`);
     }
   });
-  const upload = multer({ storage: storage });
+const upload = multer({ storage: storage });
 
 // Get a list of all ingredients
 router.get("/", async (req, res) => {
@@ -34,7 +34,8 @@ router.get("/", async (req, res) => {
       console.error(err);
       res.status(500).send("Error retrieving ingredients");
     }
-  });
+  }
+);
 
 
 
@@ -53,23 +54,14 @@ router.get("/:id", async (req, res) => {
       console.error(err);
       res.status(500).send("Error retrieving ingredient");
     }
-  });
-
-/*
-Ingredient structure:
-name:
-picture:
-calories:
-protein:
-carbs:
-fat:
-*/
-
-
+  }
+);
 
 router.post("/", upload.single("picture"), async (req, res) => {
+    console.log(req.body);
     try {
       // Create a new document with the provided details
+      
       let newDocument = {
         name: req.body.name,
         picture: req.file ? `/uploads/${req.file.filename}` : null, // Handle optional picture upload
@@ -89,7 +81,8 @@ router.post("/", upload.single("picture"), async (req, res) => {
       console.error(err);
       res.status(500).send("Error adding ingredient");
     }
-  });
+  }
+);
   
 
 // Update an ingredient by id with optional picture upload
@@ -119,7 +112,8 @@ router.patch("/:id", upload.single("picture"), async (req, res) => {
       console.error(err);
       res.status(500).send("Error updating ingredient");
     }
-  });
+  }
+);
 
 // Delete an ingredient by id
 router.delete("/:id", async (req, res) => {
@@ -137,7 +131,9 @@ router.delete("/:id", async (req, res) => {
       console.error(err);
       res.status(500).send("Error deleting ingredient");
     }
-  });
+  }
+);
   
 
-  export default router;
+
+export default router;

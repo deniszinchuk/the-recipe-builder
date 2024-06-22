@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
-function onSubmitIngredients(){
 
-}
 function onSubmitRecipe(){
   
 }
@@ -81,6 +79,43 @@ export default function Recipe() {
     updatedRecipe[index][name] = value;
     setRecipe(updatedRecipe);
   };
+
+const onSubmitIngredients = async (e) => {
+    e.preventDefault();
+    console.log("Submitting ingredients");
+
+    // Create a FormData object to handle file uploads
+    const formData = new FormData();
+
+    ingredients.forEach((ingredient) => {
+      formData.append('name', ingredient.name);
+      formData.append('picture', ingredient.picture);
+      formData.append('calories', ingredient.calories);
+      formData.append('protein', ingredient.protein);
+      formData.append('carbs', ingredient.carbs);
+      formData.append('fat', ingredient.fat);
+    });
+
+    try {
+      const response = await fetch('http://localhost:5050/ingredient/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log(result);
+        // Handle successful response
+      } else {
+        console.error("Error uploading the ingredients");
+        // Handle server errors
+      }
+    } catch (error) {
+      console.error("There was an error uploading the ingredients!", error);
+      // Handle network errors
+    }
+  };
+
 
   return (
     <div id="wrapper" className="bg-[#2F3C7E] relative h-screen-vh text-[#FBEAEB] pt-3">
@@ -174,7 +209,7 @@ export default function Recipe() {
         <button onClick={addNewIngredients} className="mt-4 bg-blue-500 w-[300px] text-white py-2 px-4 rounded hover:bg-blue-700">Add New Entry</button>
       </div>
       <div className="flex justify-center items-center text-[1.5rem]">
-        <button className="mt-4 bg-green-500 w-[300px] text-white py-2 px-4 rounded hover:bg-blue-700">Update</button>
+        <button onClick={onSubmitIngredients} className="mt-4 bg-green-500 w-[300px] text-white py-2 px-4 rounded hover:bg-blue-700">Update</button>
       </div>
       <h1 className="text-[2rem] text-center mt-[20px] mb-[20px]">Create Recipe</h1>
         <div className="overflow-x-auto text-black flex items-center justify-center">
