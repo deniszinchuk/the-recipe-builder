@@ -58,12 +58,12 @@ export default function Inventory() {
     );
   };
   return (
-    <div id="wrapper" className="bg-[#2F3C7E] h-screen-vh text-[#FBEAEB]">
+    <div id="wrapper" className="h-screen-vh text-[#FBEAEB] pt-[20px]">
       <nav>
-        <NavLink to="/create-recipe" className="p-2 border rounded-[1rem] top-1 absolute left-2">
+        <NavLink to="/create-recipe" className="p-2 border rounded-[1rem] top-[15px] absolute left-2">
           Create Recipe
         </NavLink>
-        <h1 className="text-[2rem] text-center mb-[20px]">Inventory</h1>
+        <h1 className="text-[2rem] text-center mb-[10px]">Choose your ingredients</h1>
       </nav>
       <div className="flex justify-center items-center flex-col relative">
         <input
@@ -89,9 +89,9 @@ export default function Inventory() {
       <div className="h-[60%] mt-[20px] hide-scrollbar border rounded-[2rem] mr-[30px] ml-[30px] pl-[15px] pt-[15px] overflow-auto">
         <div className="flex gap-[1rem] w-full flex-wrap">
           {myInventory.map((item, index) => (
-            <div key={index} className="w-[150px] m-h-[150px] text-[1.25rem] bg-transparent rounded-[1rem] border pt-2">
+            <div key={index} className="w-[200px] m-h-[150px] text-[1.25rem] bg-transparent rounded-[1rem] border pt-2">
               <div className="flex justify-center items-center">
-                <img className="h-[75px] w-[75px]" src={`http://localhost:5050${item.picture}`} alt={item.name} />
+                <img className="h-[100px] w-[100px] rounded" src={`http://localhost:5050${item.picture}`} alt={item.name} />
               </div>
               <div className="flex justify-center items-center flex-col">
                 <p>{item.name}</p>

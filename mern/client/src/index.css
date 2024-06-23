@@ -1,7 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+body{
+  background-color: #2F3C7E;
+}
 .h-screen-vh {
     height: 100svh;
 

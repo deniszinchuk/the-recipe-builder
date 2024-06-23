@@ -79,32 +79,32 @@ export default function RecipeList() {
   };
 
   return (
-    <div id="wrapper" className="bg-[#2F3C7E] relative h-screen-vh text-[#FBEAEB] p-6">
+    <div id="wrapper" className="relative h-screen-vh text-[#FBEAEB] p-6">
       <nav>
-        <NavLink to="/inventory" className="p-2 border rounded-[1rem] top-1 absolute left-2">
+        <NavLink to="/" className="p-2 border rounded-[1rem] top-1 absolute left-2">
           Return
         </NavLink>
       </nav>
       <h1 className="text-2xl text-center mb-4">Recipe List</h1>
       {filteredRecipes.length > 0 ? (
-        <div className="flex gap-[3rem] flex-wrap">
+        <div className="flex gap-[3rem] flex-wrap justify-center mt-[20px] pb-[100px]">
           {filteredRecipes.map(recipe => {
             const { totalCalories, totalFat, totalProtein, totalCarbs } = calculateTotalMacros(recipe);
             return (
               <div key={recipe._id} className="border rounded p-3">
                 <div className="flex gap-[1rem]">
-                  <div>
-                    <img src={`http://localhost:5050${recipe.picture}`} alt={recipe.name} className="w-[200px] h-[200px] object-cover" />
-                  </div>
-                  <div className="overflow-auto flex flex-col justify-center ">
-                    <h2 className="text-xl">{recipe.name}</h2>
-                    <ul>
+                  <div className="relative">
+                    <img src={`http://localhost:5050${recipe.picture}`} alt={recipe.name} className="w-[200px] h-[200px] object-cover rounded" />
+                    <div className="p-3 top-0 rounded opacity-0 cursor-pointer hover:opacity-100 transition-opacity absolute w-full h-full bg-black flex justify-center items-center flex-col overflow-auto hide-scrollbar">
                       {recipe.ingredients.map((ingredient, index) => (
-                        <li key={index}>
+                        <div key={index}>
                           {getIngredientName(ingredient.ingredientId)} - {ingredient.amount}
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
+                  </div>
+                  <div className="overflow-auto flex flex-col pt-[20px] ">
+                    <h2 className="text-xl"><strong>{recipe.name}</strong></h2>
                     <p>Total Calories: {totalCalories}</p>
                     <p>Total Fat: {totalFat}</p>
                     <p>Total Protein: {totalProtein}</p>
@@ -113,15 +113,15 @@ export default function RecipeList() {
                     <p>Healthiness Score: {recipe.healthinessScore}</p>
                   </div>
                 </div>
-                <div className="mt-[5px] flex justify-center items-center">
-                  <div className="w-full h-[100px] p-2 text-black bg-white overflow-auto hide-scrollbar">{recipe.description}</div>
+                <div className="mt-[10px] flex justify-center items-center">
+                  <div className="w-full h-[100px] p-2 rounded text-black bg-white overflow-auto hide-scrollbar">{recipe.description}</div>
                 </div>
               </div>
             );
           })}
         </div>
       ) : (
-        <p>No recipes can be created with the current inventory.</p>
+        <p>Unfortunately, no recipes where found with the ingredients you provided. Add more ingredients and try again!</p>
       )}
     </div>
   );
