@@ -34,17 +34,11 @@ export default function RecipeList() {
       inventoryMap.set(item._id, item.count);
     });
 
-    console.log("Inventory Map:", inventoryMap); // Log inventory map
-
     const checkRecipes = recipes.filter(recipe => {
-      console.log("Checking recipe:", recipe.name); // Log recipe being checked
       const canMakeRecipe = recipe.ingredients.every(ingredient => {
         const availableAmount = inventoryMap.get(ingredient.ingredientId);
-        console.log(`Ingredient ID: ${ingredient.ingredientId}, Required: ${ingredient.amount}, Available: ${availableAmount}`); // Log ingredient check
         return availableAmount && availableAmount >= ingredient.amount;
       });
-
-      console.log(`Can make recipe ${recipe.name}:`, canMakeRecipe); // Log if recipe can be made
       return canMakeRecipe;
     });
 

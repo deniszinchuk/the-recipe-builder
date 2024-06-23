@@ -32,8 +32,6 @@ router.use(express.urlencoded({ extended: true }));
 router.use(express.json());
 
 router.post("/", upload.single("picture"), async (req, res) => {
-  console.log(req.body);
-  console.log(req.file);
   try {
     const ingredients = JSON.parse(req.body.ingredients);
     
@@ -53,9 +51,6 @@ router.post("/", upload.single("picture"), async (req, res) => {
         carbs: ingredientDetails.carbs
       };
     }));
-
-    console.log('Parsed ingredients:', detailedIngredients);
-
     const newRecipe = {
       name: req.body.name,
       picture: req.file ? `/uploads/${req.file.filename}` : null,

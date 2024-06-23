@@ -4,7 +4,6 @@ import { useLocation } from "react-router-dom";
 export default function RecipeBuilder(){
     const location = useLocation();
     const { myInventory } = location.state || { myInventory: [] };
-    console.log(myInventory);
     return (
       <div id="wrapper" className="bg-[#2F3C7E] h-screen-vh text-[#FBEAEB]">
         <nav>
