@@ -1,9 +1,14 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from 'url';
 import ingredients from "./routes/ingredient.js";
 import recipes from "./routes/recipe.js";
+
+
 
 const PORT = process.env.PORT || 5050;
 const app = express();

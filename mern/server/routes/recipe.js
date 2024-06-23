@@ -4,6 +4,7 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import db from "../db/connection.js";
+import { getHealthinessEvaluation } from '../ChatGPTService.js';
 
 const router = express.Router();
 
@@ -35,23 +36,34 @@ router.use(express.json());
 
 // Create a new recipe
 router.post("/", upload.single("picture"), async (req, res) => {
-    console.log(req.body); // Debug: Check the parsed body
-    console.log(req.file); // Debug: Check the uploaded file
-  try {
-    const newRecipe = {
-      name: req.body.name,
-      picture: req.file ? `/uploads/${req.file.filename}` : null,
-      description: req.body.description,
-      ingredients: JSON.parse(req.body.ingredients) // Ensure ingredients are parsed correctly
-    };
-    const collection = db.collection("recipes");
-    const result = await collection.insertOne(newRecipe);
-    res.status(201).send(result);
-  } catch (err) {
-    console.error("Error adding recipe:", err);
-    res.status(500).send("Error adding recipe");
-  }
-});
+    try {
+      // Parse the ingredients
+      const ingredients = JSON.parse(req.body.ingredients);
+  
+      // Create a new recipe object
+      const newRecipe = {
+        name: req.body.name,
+        picture: req.file ? `/uploads/${req.file.filename}` : null,
+        description: req.body.description,
+        ingredients: ingredients,
+      };
+  
+      // Get healthiness evaluation
+      const healthinessEvaluation = await getHealthinessEvaluation(newRecipe);
+  
+      // Add healthiness evaluation to the recipe
+      newRecipe.healthinessEvaluation = healthinessEvaluation;
+  
+      // Insert the new recipe into the database
+      const collection = db.collection("recipes");
+      const result = await collection.insertOne(newRecipe);
+  
+      res.status(201).send(result);
+    } catch (err) {
+      console.error("Error adding recipe:", err);
+      res.status(500).send("Error adding recipe");
+    }
+  });
 
 // Get a list of all recipes
 router.get("/", async (req, res) => {
