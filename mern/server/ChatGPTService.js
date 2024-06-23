@@ -12,7 +12,7 @@ Recipe Name: ${recipeName}
 Ingredients: ${ingredients.map(i => `${i.name} - ${i.amount}`).join(', ')}
 Macronutrients: ${ingredients.map(i => `Calories: ${i.calories}, Fat: ${i.fat}, Protein: ${i.protein}, Carbs: ${i.carbs}`).join('; ')}
 `;
-
+  console.log(prompt)
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
