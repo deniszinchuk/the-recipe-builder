@@ -7,17 +7,7 @@ export default function Ingredient() {
     { name: '', picture: '', calories: '', protein: '', carbs: '', fat: '' }
   ]);
 
-  // Add a new ingredient entry
-  const addNewIngredients = () => {
-    setIngredients([...ingredients, { name: '', picture: '', calories: '', protein: '', carbs: '', fat: '' }]);
-  };
 
-  // Delete an ingredient entry
-  const deleteNewIngredients = (index) => {
-    const updatedIngredients = [...ingredients];
-    updatedIngredients.splice(index, 1);
-    setIngredients(updatedIngredients);
-  };
 
   // Handle ingredient input changes
   const handleIngredientChange = (index, event) => {
@@ -34,6 +24,48 @@ export default function Ingredient() {
   // Submit ingredients to the server
   const onSubmitIngredients = async (e) => {
     e.preventDefault();
+    if(ingredients[0].name === ""){
+      document.getElementById("0").className = "w-full border border-red-500 border-solid";
+      return;
+    }
+    else{
+      document.getElementById("0").className = "w-full";
+    } 
+    if(ingredients[0].picture === "" || ingredients[0].picture === null){
+      document.getElementById("1").className = "w-full border border-red-500 border-solid";
+      return;
+    }
+    else{
+      document.getElementById("1").className = "w-full";
+    } 
+    if(ingredients[0].calories === ""){
+      document.getElementById("2").className = "w-full border border-red-500 border-solid";
+      return;
+    }
+    else{
+      document.getElementById("2").className = "w-full";
+    } 
+    if(ingredients[0].protein === ""){
+      document.getElementById("3").className = "w-full border border-red-500 border-solid";
+      return;
+    }
+    else{
+      document.getElementById("3").className = "w-full";
+    } 
+    if(ingredients[0].carbs === ""){
+      document.getElementById("4").className = "w-full border border-red-500 border-solid";
+      return;
+    }
+    else{
+      document.getElementById("4").className = "w-full";
+    } 
+    if(ingredients[0].fat === ""){
+      document.getElementById("5").className = "w-full border border-red-500 border-solid";
+      return;
+    }
+    else{
+      document.getElementById("5").className = "w-full";
+    }
     console.log("Submitting ingredients");
 
     // Create a FormData object to handle file uploads
@@ -52,7 +84,15 @@ export default function Ingredient() {
     for (let pair of formData.entries()) {
       console.log(pair[0] + ': ' + pair[1]);
     }
-
+    document.getElementById("0").value = "";
+    document.getElementById("1").value = "";
+    document.getElementById("2").value = "";
+    document.getElementById("3").value = "";
+    document.getElementById("4").value = "";
+    document.getElementById("5").value = "";
+    setIngredients([
+      { name: '', picture: '', calories: '', protein: '', carbs: '', fat: '' }
+    ]);
     try {
       const response = await fetch('http://localhost:5050/ingredient/', {
         method: 'POST',
@@ -76,8 +116,11 @@ export default function Ingredient() {
   return (
     <div id="wrapper" className="bg-[#2F3C7E] relative h-screen-vh text-[#FBEAEB] pt-3">
       <nav>
-        <NavLink to="/inventory" className="p-2 border rounded-[1rem] top-1 absolute left-2">
+        <NavLink to="/inventory" className="p-2 border rounded-[1rem] top-3 absolute left-2">
           Return
+        </NavLink>
+        <NavLink to="/create-recipe" className="p-2 border rounded-[1rem] top-3 absolute right-2">
+          Create Recipes
         </NavLink>
       </nav>
       <h1 className="text-[2rem] text-center mb-[20px]">Create Ingredients</h1>
@@ -92,7 +135,6 @@ export default function Ingredient() {
                 <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Protein</th>
                 <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Carbs</th>
                 <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Fat</th>
-                <th className="py-2 px-4 border-b border-gray-200 bg-gray-100 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -100,6 +142,7 @@ export default function Ingredient() {
                 <tr key={index} className={index % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-50"}>
                   <td className="py-2 px-4 border-b border-gray-200">
                     <input
+                      id="0"
                       type="text"
                       name="name"
                       value={row.name}
@@ -109,6 +152,7 @@ export default function Ingredient() {
                   </td>
                   <td className="py-2 px-4 border-b border-gray-200">
                     <input
+                      id="1"
                       type="file"
                       name="picture"
                       onChange={(event) => handleIngredientChange(index, event)}
@@ -117,6 +161,7 @@ export default function Ingredient() {
                   </td>
                   <td className="py-2 px-4 border-b border-gray-200">
                     <input
+                      id="2"
                       type="text"
                       name="calories"
                       value={row.calories}
@@ -126,6 +171,7 @@ export default function Ingredient() {
                   </td>
                   <td className="py-2 px-4 border-b border-gray-200">
                     <input
+                      id="3"
                       type="text"
                       name="protein"
                       value={row.protein}
@@ -135,6 +181,7 @@ export default function Ingredient() {
                   </td>
                   <td className="py-2 px-4 border-b border-gray-200">
                     <input
+                      id="4"
                       type="text"
                       name="carbs"
                       value={row.carbs}
@@ -144,6 +191,7 @@ export default function Ingredient() {
                   </td>
                   <td className="py-2 px-4 border-b border-gray-200">
                     <input
+                      id="5"
                       type="text"
                       name="fat"
                       value={row.fat}
@@ -151,17 +199,11 @@ export default function Ingredient() {
                       className="w-full"
                     />
                   </td>
-                  <td className="py-2 px-4 border-b border-gray-200">
-                    <button onClick={() => deleteNewIngredients(index)} className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-700">Delete</button>
-                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </form>
-      </div>
-      <div className="flex justify-center items-center text-[1.5rem]">
-        <button onClick={addNewIngredients} className="mt-4 bg-blue-500 w-[300px] text-white py-2 px-4 rounded hover:bg-blue-700">Add New Entry</button>
       </div>
       <div className="flex justify-center items-center text-[1.5rem]">
         <button onClick={onSubmitIngredients} className="mt-4 bg-green-500 w-[300px] text-white py-2 px-4 rounded hover:bg-blue-700">Update</button>
