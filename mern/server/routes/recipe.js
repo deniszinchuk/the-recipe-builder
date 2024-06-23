@@ -35,14 +35,14 @@ router.use(express.json());
 
 // Create a new recipe
 router.post("/", upload.single("picture"), async (req, res) => {
-  console.log(req.body); // Debug: Check the parsed body
-  console.log(req.file); // Debug: Check the uploaded file
+    console.log(req.body); // Debug: Check the parsed body
+    console.log(req.file); // Debug: Check the uploaded file
   try {
     const newRecipe = {
       name: req.body.name,
       picture: req.file ? `/uploads/${req.file.filename}` : null,
       description: req.body.description,
-      ingredients: JSON.parse(req.body.ingredients), // Expecting a JSON string
+      ingredients: JSON.parse(req.body.ingredients) // Ensure ingredients are parsed correctly
     };
     const collection = db.collection("recipes");
     const result = await collection.insertOne(newRecipe);
@@ -53,20 +53,17 @@ router.post("/", upload.single("picture"), async (req, res) => {
   }
 });
 
-
-
 // Get a list of all recipes
 router.get("/", async (req, res) => {
   try {
-    const collection = db.collection("recipes");
-    const results = await collection.find({}).toArray();
+    let collection = await db.collection("recipes");
+    let results = await collection.find({}).toArray();
     res.status(200).send(results);
   } catch (err) {
     console.error(err);
     res.status(500).send("Error retrieving recipes");
   }
 });
-
 
 // Get a single recipe by id
 router.get("/:id", async (req, res) => {

@@ -12,6 +12,7 @@ import "./index.css";
 import Inventory from "./components/Inventory";
 import Recipe from "./components/Recipe";
 import Ingredient from "./components/Ingredient";
+import RecipeList from "./components/RecipeList";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
   {
     path: "/inventory",
     element: <Inventory />,
+  },
+  {
+    path: "/recipe-list", // Add route for RecipeList
+    element: <RecipeList />,
   },
   {
     path: "/",

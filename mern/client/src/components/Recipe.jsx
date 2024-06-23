@@ -98,12 +98,21 @@ export default function Recipe() {
       ingredientId: ingredient._id,
       amount: ingredient.amount
     }))));
+<<<<<<< HEAD
     document.getElementById("0").value = "";
     document.getElementById("1").value = "";
     document.getElementById("2").value = "";
     document.getElementById("3").value = "";
     setRecipe({ name: '', picture: null, description: '' });
     setSelectedIngredients([]);
+=======
+
+    // Log FormData content for debugging
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
+
+>>>>>>> 8cabf0a80f680d10fb5f16eaeb123bdd3e983761
     try {
       const response = await fetch('http://localhost:5050/recipe/', {
         method: 'POST',
