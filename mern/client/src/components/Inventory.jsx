@@ -63,7 +63,7 @@ export default function Inventory() {
         <NavLink to="/create-recipe" className="p-2 border rounded-[1rem] top-[15px] absolute left-2">
           Create Recipe
         </NavLink>
-        <h1 className="text-[2rem] text-center mb-[10px]">Choose your ingredients</h1>
+        <h1 className="text-[2rem] text-center mb-[10px]">The Recipe Builder</h1>
       </nav>
       <div className="flex justify-center items-center flex-col relative">
         <input

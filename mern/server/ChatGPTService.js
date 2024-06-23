@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const OPENAI_API_KEY = "sk-proj-J4UcUwLV6r7Vgjs4c6nJT3BlbkFJEDHHOS1YouYQWctWMeOG";
+const OPENAI_API_KEY = "YOUR-API-KEY-HERE";
 
 async function getHealthinessEvaluation(recipeName, ingredients) {
   console.log('Recipe Name:', recipeName);

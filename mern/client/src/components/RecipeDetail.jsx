@@ -84,7 +84,7 @@ export default function RecipeDetail() {
       </nav>
       <h1 className="text-2xl text-center mb-4">{recipe.name}</h1>
       <div className="flex flex-col justify-center items-center pb-[100px]">
-        <div className="flex items-center justify-center">
+        <div className="flex items-center gap-[2rem] justify-center">
           <img src={`http://localhost:5050${recipe.picture}`} alt={recipe.name} className="w-[300px] h-[300px] object-cover" />
           <div>
             <p className="text-xl">{recipe.description}</p>
