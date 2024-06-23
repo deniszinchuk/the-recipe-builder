@@ -1,9 +1,9 @@
-import express from "express";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import db from "../db/connection.js";
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import db from '../db/connection.js';
 import { getHealthinessEvaluation } from '../ChatGPTService.js';
 
 const router = express.Router();
@@ -36,34 +36,41 @@ router.use(express.json());
 
 // Create a new recipe
 router.post("/", upload.single("picture"), async (req, res) => {
-    try {
-      // Parse the ingredients
-      const ingredients = JSON.parse(req.body.ingredients);
-  
-      // Create a new recipe object
-      const newRecipe = {
-        name: req.body.name,
-        picture: req.file ? `/uploads/${req.file.filename}` : null,
-        description: req.body.description,
-        ingredients: ingredients,
-      };
-  
-      // Get healthiness evaluation
-      const healthinessEvaluation = await getHealthinessEvaluation(newRecipe);
-  
-      // Add healthiness evaluation to the recipe
-      newRecipe.healthinessEvaluation = healthinessEvaluation;
-  
-      // Insert the new recipe into the database
-      const collection = db.collection("recipes");
-      const result = await collection.insertOne(newRecipe);
-  
-      res.status(201).send(result);
-    } catch (err) {
-      console.error("Error adding recipe:", err);
-      res.status(500).send("Error adding recipe");
+  try {
+    const { name, description, ingredients } = req.body;
+    
+    // Add logging to inspect the ingredients
+    console.log('Request body:', req.body);
+    
+    const parsedIngredients = JSON.parse(ingredients);
+    
+    // Verify parsed ingredients
+    console.log('Parsed ingredients:', parsedIngredients);
+
+    if (!Array.isArray(parsedIngredients)) {
+      throw new Error('Ingredients must be an array');
     }
-  });
+
+    const newRecipe = {
+      name,
+      picture: req.file ? `/uploads/${req.file.filename}` : null,
+      description,
+      ingredients: parsedIngredients,
+    };
+
+    // Get healthiness evaluation from ChatGPT
+    const { evaluation, healthinessScore } = await getHealthinessEvaluation(name, parsedIngredients);
+    newRecipe.evaluation = evaluation;
+    newRecipe.healthinessScore = healthinessScore;
+
+    const collection = db.collection("recipes");
+    const result = await collection.insertOne(newRecipe);
+    res.status(201).send(result);
+  } catch (err) {
+    console.error("Error adding recipe:", err);
+    res.status(500).send("Error adding recipe");
+  }
+});
 
 // Get a list of all recipes
 router.get("/", async (req, res) => {

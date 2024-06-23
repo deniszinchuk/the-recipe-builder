@@ -109,6 +109,8 @@ export default function RecipeList() {
                     <p>Total Fat: {totalFat}</p>
                     <p>Total Protein: {totalProtein}</p>
                     <p>Total Carbs: {totalCarbs}</p>
+                    <p>Healthiness Evaluation: {recipe.evaluation}</p>
+                    <p>Healthiness Score: {recipe.healthinessScore}</p>
                   </div>
                 </div>
                 <div className="mt-[5px] flex justify-center items-center">

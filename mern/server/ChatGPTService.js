@@ -1,31 +1,42 @@
 import fetch from 'node-fetch';
-import dotenv from 'dotenv';
 
-dotenv.config();
+const OPENAI_API_KEY = "sk-proj-J4UcUwLV6r7Vgjs4c6nJT3BlbkFJEDHHOS1YouYQWctWMeOG";
 
-const apiKey = process.env.OPENAI_API_KEY;
+export async function getHealthinessEvaluation(recipeName, ingredients) {
+  if (!OPENAI_API_KEY) {
+    throw new Error("OpenAI API key is not set");
+  }
 
-export async function getHealthinessEvaluation(recipe) {
-  const prompt = `
-  Recipe: ${recipe.name}
-  Ingredients: ${recipe.ingredients.map(ing => `${ing.name} - ${ing.amount} (Calories: ${ing.calories}, Protein: ${ing.protein}, Carbs: ${ing.carbs}, Fat: ${ing.fat})`).join(', ')}
-  Description: ${recipe.description}
+  const prompt = `Evaluate the healthiness of the following recipe on a scale of 1-10, and explain why:
+Recipe Name: ${recipeName}
+Ingredients: ${ingredients.map(i => `${i.name} - ${i.amount}`).join(', ')}
+Macronutrients: ${ingredients.map(i => `Calories: ${i.calories}, Fat: ${i.fat}, Protein: ${i.protein}, Carbs: ${i.carbs}`).join('; ')}
+`;
 
-  How healthy do you think this meal is and how healthy do you think it is on a scale of 1-10?
-  `;
-
-  const response = await fetch('https://api.openai.com/v1/engines/davinci-codex/completions', {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      prompt: prompt,
-      max_tokens: 150
-    })
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 150,
+    }),
   });
 
   const data = await response.json();
-  return data.choices[0].text.trim();
+
+  if (data.error) {
+    throw new Error(data.error.message);
+  }
+
+  const evaluation = data.choices[0].message.content.trim();
+  const healthinessScore = evaluation.match(/\b\d+\b/); // Extract the score from the response text
+
+  return {
+    evaluation,
+    healthinessScore: healthinessScore ? parseInt(healthinessScore[0], 10) : null,
+  };
 }
