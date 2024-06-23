@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 export default function RecipeList() {
   const location = useLocation();
   const { state } = location;
   const { myInventory } = state || { myInventory: [] };
+  const navigate = useNavigate();
 
   const [recipes, setRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
@@ -91,7 +92,7 @@ export default function RecipeList() {
           {filteredRecipes.map(recipe => {
             const { totalCalories, totalFat, totalProtein, totalCarbs } = calculateTotalMacros(recipe);
             return (
-              <div key={recipe._id} className="flex flex-col justify-center border rounded p-3 w-[400px]">
+              <div key={recipe._id} className="flex flex-col justify-center border rounded p-3 w-[400px] cursor-pointer" onClick={() => navigate(`/recipe/${recipe._id}`)}>
                 <div className="flex justify-center items-center gap-[1rem]">
                   <div className="relative">
                     <img src={`http://localhost:5050${recipe.picture}`} alt={recipe.name} className="w-[200px] h-[200px] object-cover rounded" />

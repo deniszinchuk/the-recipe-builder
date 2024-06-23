@@ -1,10 +1,11 @@
-import express from 'express';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import db from '../db/connection.js';
-import { getHealthinessEvaluation } from '../ChatGPTService.js';
+import express from "express";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import { ObjectId } from "mongodb"; // Correct import statement
+import db from "../db/connection.js";
+import { getHealthinessEvaluation } from "../ChatGPTService.js"; // Ensure this path is correct
 
 const router = express.Router();
 
@@ -34,44 +35,33 @@ const upload = multer({ storage: storage });
 router.use(express.urlencoded({ extended: true }));
 router.use(express.json());
 
-router.post('/', upload.single('picture'), async (req, res) => {
-    console.log('Request body:', req.body);
-    try {
-      const ingredients = JSON.parse(req.body.ingredients);
-      console.log('Parsed ingredients:', ingredients);
-  
-      const ingredientsCollection = db.collection('ingredients');
-      const ingredientsList = await ingredientsCollection.find({}).toArray();
-  
-      const ingredientsWithDetails = ingredients.map(ingredient => {
-        const ingredientDetails = ingredientsList.find(item => item._id.toString() === ingredient.ingredientId);
-        return {
-          ...ingredientDetails,
-          amount: ingredient.amount,
-        };
-      });
-  
-      const healthinessEvaluation = await getHealthinessEvaluation(req.body.name, ingredientsWithDetails);
-  
-      const newRecipe = {
-        name: req.body.name,
-        picture: req.file ? `/uploads/${req.file.filename}` : null,
-        description: req.body.description,
-        ingredients: ingredients,
-        healthinessEvaluation: healthinessEvaluation.evaluation,
-        healthinessScore: healthinessEvaluation.healthinessScore,
-        healthySuggestion: healthinessEvaluation.healthySuggestion,
-      };
-  
-      const collection = db.collection('recipes');
-      const result = await collection.insertOne(newRecipe);
-  
-      res.status(201).send(result);
-    } catch (err) {
-      console.error('Error adding recipe:', err);
-      res.status(500).send('Error adding recipe');
-    }
-  });
+// Create a new recipe
+router.post("/", upload.single("picture"), async (req, res) => {
+  console.log(req.body); // Debug: Check the parsed body
+  console.log(req.file); // Debug: Check the uploaded file
+  try {
+    const ingredients = JSON.parse(req.body.ingredients);
+
+    const newRecipe = {
+      name: req.body.name,
+      picture: req.file ? `/uploads/${req.file.filename}` : null,
+      description: req.body.description,
+      ingredients,
+    };
+
+    const evaluation = await getHealthinessEvaluation(newRecipe);
+    newRecipe.healthinessScore = evaluation.score;
+    newRecipe.evaluation = evaluation.text;
+    newRecipe.healthierRecipe = evaluation.healthierRecipe;
+
+    const collection = db.collection("recipes");
+    const result = await collection.insertOne(newRecipe);
+    res.status(201).send(result);
+  } catch (err) {
+    console.error("Error adding recipe:", err);
+    res.status(500).send("Error adding recipe");
+  }
+});
 
 // Get a list of all recipes
 router.get("/", async (req, res) => {
@@ -87,20 +77,21 @@ router.get("/", async (req, res) => {
 
 // Get a single recipe by id
 router.get("/:id", async (req, res) => {
-    try {
-        let collection = await db.collection("recipes");
-        let query = { _id: new ObjectId(req.params.id) };
-        let result = await collection.findOne(query);
-        if (!result) {
-            res.status(404).send("Recipe not found");
-        } else {
-            res.status(200).send(result);
-        }
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error retrieving recipe");
+  try {
+    let collection = await db.collection("recipes");
+    let query = { _id: new ObjectId(req.params.id) };
+    let result = await collection.findOne(query);
+    if (!result) {
+      res.status(404).send("Not found");
+    } else {
+      res.status(200).send(result);
     }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving recipe");
+  }
 });
+
 
 // Update a recipe by id
 router.patch("/:id", async (req, res) => {

@@ -3,6 +3,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { ObjectId } from "mongodb"; // Correct import statement
 import db from "../db/connection.js";
 
 const router = express.Router();
@@ -54,7 +55,6 @@ router.post("/", upload.single("picture"), async (req, res) => {
     res.status(500).send("Error adding ingredient");
   }
 });
-  
 
 // Middleware to parse form-data
 router.use(express.urlencoded({ extended: true }));
@@ -62,37 +62,32 @@ router.use(express.json());
 
 // Get a list of all ingredients
 router.get("/", async (req, res) => {
-    try {
-      let collection = await db.collection("ingredients");
-      let results = await collection.find({}).toArray();
-      res.status(200).send(results);
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Error retrieving ingredients");
-    }
+  try {
+    let collection = await db.collection("ingredients");
+    let results = await collection.find({}).toArray();
+    res.status(200).send(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving ingredients");
   }
-);
-
-
+});
 
 // Get a single ingredient by id
 router.get("/:id", async (req, res) => {
-    try {
-      let collection = await db.collection("ingredients");
-      let query = { _id: new ObjectId(req.params.id) };
-      let result = await collection.findOne(query);
-      if (!result) {
-        res.status(404).send("Not found");
-      } else {
-        res.status(200).send(result);
-      }
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Error retrieving ingredient");
+  try {
+    let collection = await db.collection("ingredients");
+    let query = { _id: new ObjectId(req.params.id) };
+    let result = await collection.findOne(query);
+    if (!result) {
+      res.status(404).send("Not found");
+    } else {
+      res.status(200).send(result);
     }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving ingredient");
   }
-);
-
+});
 
 
 // Update an ingredient by id with optional picture upload

@@ -14,6 +14,7 @@ import Recipe from "./components/Recipe";
 import Ingredient from "./components/Ingredient";
 import RecipeList from "./components/RecipeList";
 import Mongo from "./components/Mongo";
+import RecipeDetail from "./components/RecipeDetail";
 const router = createBrowserRouter([
   {
     path: "/home",
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
         element: <Record />,
       },
     ],
+  },
+  {
+    path: "/recipe/:id",
+    element: <RecipeDetail />,
   },
   {
     path: "/create",
