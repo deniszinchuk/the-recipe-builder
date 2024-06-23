@@ -93,6 +93,12 @@ router.get("/:id", async (req, res) => {
 });
 
 
+export default router;
+
+
+
+/*
+
 // Update a recipe by id
 router.patch("/:id", async (req, res) => {
     try {
@@ -126,5 +132,4 @@ router.delete("/:id", async (req, res) => {
         res.status(500).send("Error deleting recipe");
     }
 });
-
-export default router;
+*/

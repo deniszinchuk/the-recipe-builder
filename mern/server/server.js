@@ -8,8 +8,6 @@ import recipes from './routes/recipe.js';
 
 dotenv.config();
 
-
-
 const PORT = process.env.PORT || 5050;
 const app = express();
 

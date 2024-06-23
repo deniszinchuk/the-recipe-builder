@@ -48,6 +48,9 @@ export default function RecipeList() {
       return canMakeRecipe;
     });
 
+    // Sort recipes by healthinessScore
+    checkRecipes.sort((a, b) => b.healthinessScore - a.healthinessScore);
+
     setFilteredRecipes(checkRecipes);
   }, [recipes, myInventory]);
 
@@ -95,14 +98,19 @@ export default function RecipeList() {
               <div key={recipe._id} className="flex flex-col hover:opacity-[0.7] justify-center border rounded p-3 min-w-[300px] cursor-pointer" onClick={() => navigate(`/recipe/${recipe._id}`)}>
                 <div className="flex justify-center flex-col items-center">
                   <img src={`http://localhost:5050${recipe.picture}`} alt={recipe.name} className="w-[200px] h-[200px] object-cover rounded" />
-                  <h2 className="text-[2rem] text-center"><strong>{recipe.name}</strong></h2> 
+                  <h2 className="text-[2rem] text-center"><strong>{recipe.name}</strong></h2>
+                  <p>Total Calories: {totalCalories}</p>
+                  <p>Total Fat: {totalFat}</p>
+                  <p>Total Protein: {totalProtein}</p>
+                  <p>Total Carbs: {totalCarbs}</p>
+                  <p>Healthiness Score: {recipe.healthinessScore}</p>
                 </div>
               </div>
             );
           })}
         </div>
       ) : (
-        <p>Unfortunately, no recipes where found with the ingredients you provided. Add more ingredients and try again!</p>
+        <p>Unfortunately, no recipes were found with the ingredients you provided. Add more ingredients and try again!</p>
       )}
     </div>
   );
