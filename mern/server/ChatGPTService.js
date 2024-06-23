@@ -53,7 +53,7 @@ async function getHealthinessEvaluation(recipeName, ingredients) {
 
   if (data.choices && data.choices[0] && data.choices[0].message) {
     const evaluationText = data.choices[0].message.content.trim();
-    const evaluationMatch = evaluationText.match(/Healthiness Score:(\d+)/);
+    const evaluationMatch = evaluationText.match(/(\d+)/);
     const healthinessScore = evaluationMatch ? parseInt(evaluationMatch[1], 10) : null;
 
     const healthySuggestion = evaluationText.split("Additionally,")[1]?.trim();

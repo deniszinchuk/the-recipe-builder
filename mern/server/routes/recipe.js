@@ -3,55 +3,69 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
-import { ObjectId } from "mongodb"; // Correct import statement
+import { ObjectId } from "mongodb";
 import db from "../db/connection.js";
-import { getHealthinessEvaluation } from "../ChatGPTService.js"; // Ensure this path is correct
+import { getHealthinessEvaluation } from "../ChatGPTService.js";
 
 const router = express.Router();
 
-// Determine __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Ensure the uploads directory exists
 const uploadsDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Configure storage for multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, uploadsDir); // Directory to save uploaded files
+    cb(null, uploadsDir);
   },
   filename: function (req, file, cb) {
-    cb(null, `${Date.now()}-${file.originalname}`); // Unique filename
+    cb(null, `${Date.now()}-${file.originalname}`);
   }
 });
 
 const upload = multer({ storage: storage });
 
-// Middleware to parse form-data
 router.use(express.urlencoded({ extended: true }));
 router.use(express.json());
 
-// Create a new recipe
 router.post("/", upload.single("picture"), async (req, res) => {
-  console.log(req.body); // Debug: Check the parsed body
-  console.log(req.file); // Debug: Check the uploaded file
+  console.log(req.body);
+  console.log(req.file);
   try {
     const ingredients = JSON.parse(req.body.ingredients);
+    
+    // Fetch detailed ingredient data
+    const ingredientsCollection = await db.collection("ingredients");
+    const detailedIngredients = await Promise.all(ingredients.map(async ingredient => {
+      const ingredientDetails = await ingredientsCollection.findOne({ _id: new ObjectId(ingredient.ingredientId) });
+      if (!ingredientDetails) {
+        throw new Error(`Ingredient with ID ${ingredient.ingredientId} not found`);
+      }
+      return {
+        ...ingredient,
+        name: ingredientDetails.name,
+        calories: ingredientDetails.calories,
+        fat: ingredientDetails.fat,
+        protein: ingredientDetails.protein,
+        carbs: ingredientDetails.carbs
+      };
+    }));
+
+    console.log('Parsed ingredients:', detailedIngredients);
 
     const newRecipe = {
       name: req.body.name,
       picture: req.file ? `/uploads/${req.file.filename}` : null,
       description: req.body.description,
-      ingredients,
+      ingredients: detailedIngredients,
     };
 
-    const evaluation = await getHealthinessEvaluation(newRecipe);
-    newRecipe.healthinessScore = evaluation.score;
-    newRecipe.evaluation = evaluation.text;
+    const evaluation = await getHealthinessEvaluation(newRecipe.name, detailedIngredients);
+    newRecipe.healthinessScore = evaluation.healthinessScore;
+    newRecipe.healthinessEvaluation = evaluation.evaluation;
     newRecipe.healthierRecipe = evaluation.healthierRecipe;
 
     const collection = db.collection("recipes");
@@ -63,7 +77,6 @@ router.post("/", upload.single("picture"), async (req, res) => {
   }
 });
 
-// Get a list of all recipes
 router.get("/", async (req, res) => {
   try {
     let collection = await db.collection("recipes");
@@ -75,7 +88,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get a single recipe by id
 router.get("/:id", async (req, res) => {
   try {
     let collection = await db.collection("recipes");
@@ -91,7 +103,6 @@ router.get("/:id", async (req, res) => {
     res.status(500).send("Error retrieving recipe");
   }
 });
-
 
 export default router;
 
