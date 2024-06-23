@@ -119,7 +119,7 @@ export default function RecipeList() {
           })}
         </div>
       ) : (
-        <p>No recipes can be created with the current inventory.</p>
+        <p>Unfortunately, no recipes where found with the ingredients you provided. Add more ingredients and try again!</p>
       )}
     </div>
   );
