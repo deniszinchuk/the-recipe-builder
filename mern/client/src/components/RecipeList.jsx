@@ -87,12 +87,12 @@ export default function RecipeList() {
       </nav>
       <h1 className="text-2xl text-center mb-4">Recipe List</h1>
       {filteredRecipes.length > 0 ? (
-        <div className="flex gap-[3rem] flex-wrap justify-center mt-[20px] pb-[100px]">
+        <div className="flex gap-[3rem] flex-wrap justify-center items-center mt-[20px] pb-[100px]">
           {filteredRecipes.map(recipe => {
             const { totalCalories, totalFat, totalProtein, totalCarbs } = calculateTotalMacros(recipe);
             return (
-              <div key={recipe._id} className="border rounded p-3">
-                <div className="flex gap-[1rem]">
+              <div key={recipe._id} className="flex flex-col justify-center border rounded p-3 w-[400px]">
+                <div className="flex justify-center items-center gap-[1rem]">
                   <div className="relative">
                     <img src={`http://localhost:5050${recipe.picture}`} alt={recipe.name} className="w-[200px] h-[200px] object-cover rounded" />
                     <div className="p-3 top-0 rounded opacity-0 cursor-pointer hover:opacity-100 transition-opacity absolute w-full h-full bg-black flex justify-center items-center flex-col overflow-auto hide-scrollbar">
@@ -103,18 +103,18 @@ export default function RecipeList() {
                       ))}
                     </div>
                   </div>
-                  <div className="overflow-auto flex flex-col pt-[20px] ">
+                  <div className="overflow-auto flex flex-col">
                     <h2 className="text-xl"><strong>{recipe.name}</strong></h2>
                     <p>Total Calories: {totalCalories}</p>
                     <p>Total Fat: {totalFat}</p>
                     <p>Total Protein: {totalProtein}</p>
                     <p>Total Carbs: {totalCarbs}</p>
-                    <p>Healthiness Evaluation: {recipe.evaluation}</p>
+                    <p>Healthiness Evaluation: </p>
                     <p>Healthiness Score: {recipe.healthinessScore}</p>
                   </div>
                 </div>
                 <div className="mt-[10px] flex justify-center items-center">
-                  <div className="w-full h-[100px] p-2 rounded text-black bg-white overflow-auto hide-scrollbar">{recipe.description}</div>
+                  <div className="w-full h-[100px] p-2 rounded text-black bg-white overflow-auto hide-scrollbar">{recipe.evaluation}</div>
                 </div>
               </div>
             );
