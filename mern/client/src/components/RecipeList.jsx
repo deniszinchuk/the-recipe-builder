@@ -87,29 +87,37 @@ export default function RecipeList() {
       </nav>
       <h1 className="text-2xl text-center mb-4">Recipe List</h1>
       {filteredRecipes.length > 0 ? (
-        <ul>
+        <div className="flex gap-[3rem] flex-wrap">
           {filteredRecipes.map(recipe => {
             const { totalCalories, totalFat, totalProtein, totalCarbs } = calculateTotalMacros(recipe);
             return (
-              <li key={recipe._id} className="mb-4 border-b border-gray-200 pb-2">
-                <h2 className="text-xl">{recipe.name}</h2>
-                <img src={`http://localhost:5050${recipe.picture}`} alt={recipe.name} className="w-32 h-32 object-cover" />
-                <p>{recipe.description}</p>
-                <ul>
-                  {recipe.ingredients.map((ingredient, index) => (
-                    <li key={index}>
-                      {getIngredientName(ingredient.ingredientId)} - {ingredient.amount}
-                    </li>
-                  ))}
-                </ul>
-                <p>Total Calories: {totalCalories}</p>
-                <p>Total Fat: {totalFat}</p>
-                <p>Total Protein: {totalProtein}</p>
-                <p>Total Carbs: {totalCarbs}</p>
-              </li>
+              <div key={recipe._id} className="border rounded p-3">
+                <div className="flex gap-[1rem]">
+                  <div>
+                    <img src={`http://localhost:5050${recipe.picture}`} alt={recipe.name} className="w-[200px] h-[200px] object-cover" />
+                  </div>
+                  <div className="overflow-auto flex flex-col justify-center ">
+                    <h2 className="text-xl">{recipe.name}</h2>
+                    <ul>
+                      {recipe.ingredients.map((ingredient, index) => (
+                        <li key={index}>
+                          {getIngredientName(ingredient.ingredientId)} - {ingredient.amount}
+                        </li>
+                      ))}
+                    </ul>
+                    <p>Total Calories: {totalCalories}</p>
+                    <p>Total Fat: {totalFat}</p>
+                    <p>Total Protein: {totalProtein}</p>
+                    <p>Total Carbs: {totalCarbs}</p>
+                  </div>
+                </div>
+                <div className="mt-[5px] flex justify-center items-center">
+                  <div className="w-full h-[100px] p-2 text-black bg-white overflow-auto hide-scrollbar">{recipe.description}</div>
+                </div>
+              </div>
             );
           })}
-        </ul>
+        </div>
       ) : (
         <p>No recipes can be created with the current inventory.</p>
       )}
