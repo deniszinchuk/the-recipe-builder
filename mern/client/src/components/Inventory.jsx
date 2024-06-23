@@ -52,7 +52,11 @@ export default function Inventory() {
   const generateRecipes = () => {
     navigate('/recipe-list', { state: { myInventory } });
   };
-
+  const handleDelete = (itemToDelete) => {
+    setMyInventory(prevInventory =>
+      prevInventory.filter(item => item._id !== itemToDelete._id)
+    );
+  };
   return (
     <div id="wrapper" className="bg-[#2F3C7E] h-screen-vh text-[#FBEAEB]">
       <nav>
@@ -92,7 +96,7 @@ export default function Inventory() {
               <div className="flex justify-center items-center flex-col">
                 <p>{item.name}</p>
               </div>
-              <div className="flex justify-center gap-[0.5rem] items-center pb-2">
+              <div className="flex justify-center gap-[0.5rem] items-center">
                 <button
                   className="text-white w-10 p-1 rounded "
                   onClick={() => handleIncrement(item)}
@@ -105,6 +109,14 @@ export default function Inventory() {
                   onClick={() => handleDecrement(item)}
                 >
                   -
+                </button>
+              </div>
+              <div className="pb-2 flex justify-center">
+                <button
+                  className="text-white w-[80%] rounded bg-red-500"
+                  onClick={() => handleDelete(item)}
+                >
+                  Delete
                 </button>
               </div>
             </div>
