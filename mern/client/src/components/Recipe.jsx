@@ -71,6 +71,11 @@ export default function Recipe() {
       amount: ingredient.amount
     }))));
 
+    // Log FormData content for debugging
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
+
     try {
       const response = await fetch('http://localhost:5050/recipe/', {
         method: 'POST',
