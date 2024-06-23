@@ -81,7 +81,7 @@ export default function RecipeList() {
   return (
     <div id="wrapper" className="relative h-screen-vh text-[#FBEAEB] p-6">
       <nav>
-        <NavLink to="/inventory" className="p-2 border rounded-[1rem] top-1 absolute left-2">
+        <NavLink to="/" className="p-2 border rounded-[1rem] top-1 absolute left-2">
           Return
         </NavLink>
       </nav>

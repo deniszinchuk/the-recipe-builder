@@ -13,7 +13,7 @@ import Inventory from "./components/Inventory";
 import Recipe from "./components/Recipe";
 import Ingredient from "./components/Ingredient";
 import RecipeList from "./components/RecipeList";
-
+import Mongo from "./components/Mongo";
 const router = createBrowserRouter([
   {
     path: "/home",
@@ -29,22 +29,16 @@ const router = createBrowserRouter([
   },
 
   {
-    path: "/inventory",
-    element: <Inventory />,
+    path: "/",
+    element: <App />,
   },
   {
     path: "/recipe-list", // Add route for RecipeList
     element: <RecipeList />,
   },
   {
-    path: "/",
-    element: <App />,
-    children: [
-      {
-        path: "/",
-        element: <RecordList />,
-      },
-    ],
+    path: "/mongo",
+    element: <Mongo/>,
   },
   {
     path: "/edit/:id",

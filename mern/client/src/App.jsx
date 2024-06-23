@@ -1,12 +1,8 @@
-import { Outlet } from "react-router-dom";
-import Navbar from "./components/Navbar";
+import Inventory from "./components/Inventory";
 
 const App = () => {
   return (
-    <div className="w-full p-6">
-      <Navbar />
-      <Outlet />
-    </div>
+    <Inventory/>
   );
 };
 export default App
