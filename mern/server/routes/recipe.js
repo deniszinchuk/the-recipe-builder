@@ -34,18 +34,15 @@ const upload = multer({ storage: storage });
 router.use(express.urlencoded({ extended: true }));
 router.use(express.json());
 
-// Create a new recipe
 router.post('/', upload.single('picture'), async (req, res) => {
-    console.log('Request body:', req.body); // Log the request body
+    console.log('Request body:', req.body);
     try {
       const ingredients = JSON.parse(req.body.ingredients);
-      console.log('Parsed ingredients:', ingredients); // Log the parsed ingredients
+      console.log('Parsed ingredients:', ingredients);
   
-      // Fetch the ingredients list from the database
       const ingredientsCollection = db.collection('ingredients');
       const ingredientsList = await ingredientsCollection.find({}).toArray();
   
-      // Ensure each ingredient contains the necessary information
       const ingredientsWithDetails = ingredients.map(ingredient => {
         const ingredientDetails = ingredientsList.find(item => item._id.toString() === ingredient.ingredientId);
         return {
@@ -61,8 +58,9 @@ router.post('/', upload.single('picture'), async (req, res) => {
         picture: req.file ? `/uploads/${req.file.filename}` : null,
         description: req.body.description,
         ingredients: ingredients,
-        evaluation: healthinessEvaluation.evaluation,
+        healthinessEvaluation: healthinessEvaluation.evaluation,
         healthinessScore: healthinessEvaluation.healthinessScore,
+        healthySuggestion: healthinessEvaluation.healthySuggestion,
       };
   
       const collection = db.collection('recipes');
