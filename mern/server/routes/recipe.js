@@ -35,42 +35,45 @@ router.use(express.urlencoded({ extended: true }));
 router.use(express.json());
 
 // Create a new recipe
-router.post("/", upload.single("picture"), async (req, res) => {
-  try {
-    const { name, description, ingredients } = req.body;
-    
-    // Add logging to inspect the ingredients
-    console.log('Request body:', req.body);
-    
-    const parsedIngredients = JSON.parse(ingredients);
-    
-    // Verify parsed ingredients
-    console.log('Parsed ingredients:', parsedIngredients);
-
-    if (!Array.isArray(parsedIngredients)) {
-      throw new Error('Ingredients must be an array');
+router.post('/', upload.single('picture'), async (req, res) => {
+    console.log('Request body:', req.body); // Log the request body
+    try {
+      const ingredients = JSON.parse(req.body.ingredients);
+      console.log('Parsed ingredients:', ingredients); // Log the parsed ingredients
+  
+      // Fetch the ingredients list from the database
+      const ingredientsCollection = db.collection('ingredients');
+      const ingredientsList = await ingredientsCollection.find({}).toArray();
+  
+      // Ensure each ingredient contains the necessary information
+      const ingredientsWithDetails = ingredients.map(ingredient => {
+        const ingredientDetails = ingredientsList.find(item => item._id.toString() === ingredient.ingredientId);
+        return {
+          ...ingredientDetails,
+          amount: ingredient.amount,
+        };
+      });
+  
+      const healthinessEvaluation = await getHealthinessEvaluation(req.body.name, ingredientsWithDetails);
+  
+      const newRecipe = {
+        name: req.body.name,
+        picture: req.file ? `/uploads/${req.file.filename}` : null,
+        description: req.body.description,
+        ingredients: ingredients,
+        evaluation: healthinessEvaluation.evaluation,
+        healthinessScore: healthinessEvaluation.healthinessScore,
+      };
+  
+      const collection = db.collection('recipes');
+      const result = await collection.insertOne(newRecipe);
+  
+      res.status(201).send(result);
+    } catch (err) {
+      console.error('Error adding recipe:', err);
+      res.status(500).send('Error adding recipe');
     }
-
-    const newRecipe = {
-      name,
-      picture: req.file ? `/uploads/${req.file.filename}` : null,
-      description,
-      ingredients: parsedIngredients,
-    };
-
-    // Get healthiness evaluation from ChatGPT
-    const { evaluation, healthinessScore } = await getHealthinessEvaluation(name, parsedIngredients);
-    newRecipe.evaluation = evaluation;
-    newRecipe.healthinessScore = healthinessScore;
-
-    const collection = db.collection("recipes");
-    const result = await collection.insertOne(newRecipe);
-    res.status(201).send(result);
-  } catch (err) {
-    console.error("Error adding recipe:", err);
-    res.status(500).send("Error adding recipe");
-  }
-});
+  });
 
 // Get a list of all recipes
 router.get("/", async (req, res) => {
